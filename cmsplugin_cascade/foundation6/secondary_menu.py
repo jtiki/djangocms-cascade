@@ -6,10 +6,10 @@ from django.utils.translation import ugettext_lazy as _, get_language_from_reque
 from cms.plugin_pool import plugin_pool
 from cms.models.pagemodel import Page
 from cmsplugin_cascade.fields import PartialFormField
-from .plugin_base import BootstrapPluginBase
+from .plugin_base import FoundationPluginBase
 
 
-class BootstrapSecondaryMenuPlugin(BootstrapPluginBase):
+class BootstrapSecondaryMenuPlugin(FoundationPluginBase):
     """
     Use this plugin to display a secondary menu in arbitrary locations.
     This renders links onto  all CMS pages, which are children of the selected Page Id.

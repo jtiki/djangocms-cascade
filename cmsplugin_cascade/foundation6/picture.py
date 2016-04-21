@@ -14,7 +14,7 @@ from cmsplugin_cascade.link.config import LinkPluginBase, LinkElementMixin, Link
 from . import settings, utils
 from .image import ImageFormMixin
 
-BS3_BREAKPOINT_KEYS = list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints'])
+BS3_BREAKPOINT_KEYS = list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['foundation6']['breakpoints'])
 
 
 class BootstrapPicturePlugin(LinkPluginBase):

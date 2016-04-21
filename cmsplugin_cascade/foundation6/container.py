@@ -12,14 +12,14 @@ from cms.plugin_pool import plugin_pool
 from cmsplugin_cascade.forms import ManageChildrenFormMixin
 from cmsplugin_cascade.fields import PartialFormField
 from . import settings
-from .plugin_base import BootstrapPluginBase
+from .plugin_base import FoundationPluginBase
 try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
 
-BS3_BREAKPOINTS = OrderedDict(settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints'])
-BS3_BREAKPOINT_KEYS = list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints'])
+F6_BREAKPOINTS = OrderedDict(settings.CMSPLUGIN_CASCADE['foundation6']['breakpoints'])
+F6_BREAKPOINT_KEYS = list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['foundation6']['breakpoints'])
 
 
 class ContainerBreakpointsRenderer(widgets.CheckboxFieldRenderer):
@@ -27,11 +27,11 @@ class ContainerBreakpointsRenderer(widgets.CheckboxFieldRenderer):
         return format_html('<div class="form-row">{0}</div>',
             format_html_join('', '<div class="field-box">'
                 '<div class="container-thumbnail"><i class="icon-{1}"></i><div class="label">{0}</div></div>'
-                '</div>', ((force_text(w), BS3_BREAKPOINTS[w.choice_value][1]) for w in self)
+                '</div>', ((force_text(w), F6_BREAKPOINTS[w.choice_value][1]) for w in self)
             ))
 
 
-class BootstrapContainerForm(ModelForm):
+class FoundationContainerForm(ModelForm):
     """
     Form class to validate the container.
     """
@@ -41,21 +41,21 @@ class BootstrapContainerForm(ModelForm):
         return self.cleaned_data['glossary']
 
 
-class BootstrapContainerPlugin(BootstrapPluginBase):
+class FoundationContainerPlugin(FoundationPluginBase):
     name = _("Container")
     require_parent = False
     parent_classes = []
-    form = BootstrapContainerForm
-    breakpoints = list(BS3_BREAKPOINTS)
+    form = FoundationContainerForm
+    breakpoints = list(F6_BREAKPOINTS)
     i = 0
     widget_choices = []
-    for br, br_options in BS3_BREAKPOINTS.items():
+    for br, br_options in F6_BREAKPOINTS.items():
         if i == 0:
             widget_choices.append((br, '{} (<{}px)'.format(br_options[2], br_options[0])))
         elif i == len(breakpoints[:-1]):
             widget_choices.append((br, '{} (≥{}px)'.format(br_options[2], br_options[0])))
         else:
-            widget_choices.append((br, '{} (≥{}px and <{}px)'.format(br_options[2], br_options[0], BS3_BREAKPOINTS[breakpoints[(i + 1)]][0])))
+            widget_choices.append((br, '{} (≥{}px and <{}px)'.format(br_options[2], br_options[0], F6_BREAKPOINTS[breakpoints[(i + 1)]][0])))
         i += 1
 
     WIDGET_CHOICES = tuple(widget_choices)
@@ -65,7 +65,7 @@ class BootstrapContainerPlugin(BootstrapPluginBase):
             widgets.CheckboxSelectMultiple(choices=WIDGET_CHOICES, renderer=ContainerBreakpointsRenderer),
             label=_('Available Breakpoints'),
             initial=breakpoints[::-1],
-            help_text=_("Supported display widths for Bootstrap's grid system.")
+            help_text=_("Supported display widths for Foundation's grid system.")
         ),
         PartialFormField('fluid',
             widgets.CheckboxInput(),
@@ -81,17 +81,17 @@ class BootstrapContainerPlugin(BootstrapPluginBase):
 
     @classmethod
     def get_identifier(cls, obj):
-        identifier = super(BootstrapContainerPlugin, cls).get_identifier(obj)
+        identifier = super(FoundationContainerPlugin, cls).get_identifier(obj)
         breakpoints = obj.glossary.get('breakpoints')
         content = obj.glossary.get('fluid') and '(fluid) ' or ''
         if breakpoints:
-            devices = ', '.join([force_text(BS3_BREAKPOINTS[bp][2]) for bp in breakpoints])
+            devices = ', '.join([force_text(F6_BREAKPOINTS[bp][2]) for bp in breakpoints])
             content = _("{0}for {1}").format(content, devices)
         return format_html('{0}{1}', identifier, content)
 
     @classmethod
     def get_css_classes(cls, obj):
-        css_classes = super(BootstrapContainerPlugin, cls).get_css_classes(obj)
+        css_classes = super(FoundationContainerPlugin, cls).get_css_classes(obj)
         if obj.glossary.get('fluid'):
             css_classes.append('container-fluid')
         else:
@@ -99,12 +99,12 @@ class BootstrapContainerPlugin(BootstrapPluginBase):
         return css_classes
 
     def save_model(self, request, obj, form, change):
-        super(BootstrapContainerPlugin, self).save_model(request, obj, form, change)
+        super(FoundationContainerPlugin, self).save_model(request, obj, form, change)
         obj.sanitize_children()
 
     @classmethod
     def sanitize_model(cls, obj):
-        sanitized = super(BootstrapContainerPlugin, cls).sanitize_model(obj)
+        sanitized = super(FoundationContainerPlugin, cls).sanitize_model(obj)
         parent_glossary = obj.get_parent_glossary()
         # compute the max width and the required media queries for each chosen breakpoint
         obj.glossary['container_max_widths'] = max_widths = {}
@@ -117,33 +117,33 @@ class BootstrapContainerPlugin(BootstrapPluginBase):
             except KeyError:
                 if obj.glossary.get('fluid'):
                     if bp == 'lg':
-                        max_widths[bp] = settings.CMSPLUGIN_CASCADE['bootstrap3']['fluid-lg-width']
+                        max_widths[bp] = settings.CMSPLUGIN_CASCADE['foundation6']['fluid-lg-width']
                     else:
-                        max_widths[bp] = BS3_BREAKPOINTS[bp][0]
+                        max_widths[bp] = F6_BREAKPOINTS[bp][0]
                 else:
-                    max_widths[bp] = BS3_BREAKPOINTS[bp][3]
+                    max_widths[bp] = F6_BREAKPOINTS[bp][3]
             if last_index > 0:
                 if index == 0:
                     next_bp = breakpoints[1]
-                    media_queries[bp] = ['(max-width: {0}px)'.format(BS3_BREAKPOINTS[next_bp][0])]
+                    media_queries[bp] = ['(max-width: {0}px)'.format(F6_BREAKPOINTS[next_bp][0])]
                 elif index == last_index:
-                    media_queries[bp] = ['(min-width: {0}px)'.format(BS3_BREAKPOINTS[bp][0])]
+                    media_queries[bp] = ['(min-width: {0}px)'.format(F6_BREAKPOINTS[bp][0])]
                 else:
                     next_bp = breakpoints[index + 1]
-                    media_queries[bp] = ['(min-width: {0}px)'.format(BS3_BREAKPOINTS[bp][0]),
-                                         '(max-width: {0}px)'.format(BS3_BREAKPOINTS[next_bp][0])]
+                    media_queries[bp] = ['(min-width: {0}px)'.format(F6_BREAKPOINTS[bp][0]),
+                                         '(max-width: {0}px)'.format(F6_BREAKPOINTS[next_bp][0])]
         return sanitized
 
     def get_parent_classes(self, slot, page):
         if self.cms_plugin_instance and self.cms_plugin_instance.parent:
             # enforce that a ContainerPlugin can't have a parent
             return []
-        return super(BootstrapContainerPlugin, self).get_parent_classes(slot, page)
+        return super(FoundationContainerPlugin, self).get_parent_classes(slot, page)
 
-plugin_pool.register_plugin(BootstrapContainerPlugin)
+plugin_pool.register_plugin(FoundationContainerPlugin)
 
 
-class BootstrapRowForm(ManageChildrenFormMixin, ModelForm):
+class FoundationRowForm(ManageChildrenFormMixin, ModelForm):
     """
     Form class to add non-materialized field to count the number of children.
     """
@@ -153,67 +153,67 @@ class BootstrapRowForm(ManageChildrenFormMixin, ModelForm):
         help_text=_('Number of columns to be created with this row.'))
 
 
-class BootstrapRowPlugin(BootstrapPluginBase):
+class FoundationRowPlugin(FoundationPluginBase):
     name = _("Row")
     default_css_class = 'row'
-    parent_classes = ('BootstrapContainerPlugin', 'BootstrapColumnPlugin',)
-    form = BootstrapRowForm
+    parent_classes = ('FoundationContainerPlugin', 'FoundationColumnPlugin',)
+    form = FoundationRowForm
     fields = ('num_children', 'glossary',)
 
     @classmethod
     def get_identifier(cls, obj):
-        identifier = super(BootstrapRowPlugin, cls).get_identifier(obj)
+        identifier = super(FoundationRowPlugin, cls).get_identifier(obj)
         num_cols = obj.get_children_count()
         content = ungettext_lazy("with {0} column", "with {0} columns", num_cols).format(num_cols)
         return format_html('{0}{1}', identifier, content)
 
     def save_model(self, request, obj, form, change):
         wanted_children = int(form.cleaned_data.get('num_children'))
-        super(BootstrapRowPlugin, self).save_model(request, obj, form, change)
+        super(FoundationRowPlugin, self).save_model(request, obj, form, change)
         parent_glossary = obj.get_complete_glossary()
         narrowest = parent_glossary['breakpoints'][0]
         column_width = 12 // wanted_children
         child_glossary = {
             '{0}-column-width'.format(narrowest): 'col-{0}-{1}'.format(narrowest, column_width)
         }
-        self.extend_children(obj, wanted_children, BootstrapColumnPlugin, child_glossary=child_glossary)
+        self.extend_children(obj, wanted_children, FoundationColumnPlugin, child_glossary=child_glossary)
 
-plugin_pool.register_plugin(BootstrapRowPlugin)
+plugin_pool.register_plugin(FoundationRowPlugin)
 
 
-class BootstrapColumnPlugin(BootstrapPluginBase):
+class FoundationColumnPlugin(FoundationPluginBase):
     name = _("Column")
-    parent_classes = ('BootstrapRowPlugin',)
+    parent_classes = ('FoundationRowPlugin',)
     alien_child_classes = True
     default_css_attributes = list(itertools.chain(*(('{}-column-width'.format(s),
         '{}-column-offset'.format(s), '{}-column-ordering'.format(s), '{}-responsive-utils'.format(s),)
-        for s in BS3_BREAKPOINT_KEYS)))
+        for s in F6_BREAKPOINT_KEYS)))
     glossary_variables = ['container_max_widths']
 
     def get_form(self, request, obj=None, **kwargs):
         def chose_help_text(*phrases):
             if next_bp:
-                return phrases[0].format(*BS3_BREAKPOINTS[next_bp])
+                return phrases[0].format(*F6_BREAKPOINTS[next_bp])
             elif len(breakpoints) > 1:
-                return phrases[1].format(*BS3_BREAKPOINTS[bp])
+                return phrases[1].format(*F6_BREAKPOINTS[bp])
             else:
                 return phrases[2]
 
         glossary_fields = []
         parent_obj, parent_plugin = self.parent.get_plugin_instance()
         units = [ungettext_lazy("{} unit", "{} units", i).format(i) for i in range(0, 13)]
-        if isinstance(parent_plugin, BootstrapPluginBase):
+        if isinstance(parent_plugin, FoundationPluginBase):
             breakpoints = parent_obj.get_complete_glossary()['breakpoints']
             for bp in breakpoints:
                 try:
                     next_bp = breakpoints[breakpoints.index(bp) + 1]
-                    last = BS3_BREAKPOINT_KEYS.index(next_bp)
+                    last = F6_BREAKPOINT_KEYS.index(next_bp)
                 except IndexError:
                     next_bp = None
                     last = None
                 finally:
-                    first = BS3_BREAKPOINT_KEYS.index(bp)
-                    devices = ', '.join([force_text(BS3_BREAKPOINTS[b][2]) for b in BS3_BREAKPOINT_KEYS[first:last]])
+                    first = F6_BREAKPOINT_KEYS.index(bp)
+                    devices = ', '.join([force_text(F6_BREAKPOINTS[b][2]) for b in F6_BREAKPOINT_KEYS[first:last]])
                 if breakpoints.index(bp) == 0:
                     # first breakpoint
                     choices = tuple(('col-{}-{}'.format(bp, i), units[i]) for i in range(1, 13))
@@ -287,33 +287,33 @@ class BootstrapColumnPlugin(BootstrapPluginBase):
             for j in range(0, len(breakpoints))
         ]
         kwargs.update(glossary_fields=glossary_fields)
-        return super(BootstrapColumnPlugin, self).get_form(request, obj, **kwargs)
+        return super(FoundationColumnPlugin, self).get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
-        super(BootstrapColumnPlugin, self).save_model(request, obj, form, change)
+        super(FoundationColumnPlugin, self).save_model(request, obj, form, change)
         obj.sanitize_children()
 
     @classmethod
     def sanitize_model(cls, obj):
-        sanitized = super(BootstrapColumnPlugin, cls).sanitize_model(obj)
+        sanitized = super(FoundationColumnPlugin, cls).sanitize_model(obj)
         parent_glossary = obj.get_parent_glossary()
         column_units = 12
         obj.glossary['container_max_widths'] = {}
         breakpoints = parent_glossary.get('breakpoints', [])
-        for bp in BS3_BREAKPOINT_KEYS:
+        for bp in F6_BREAKPOINT_KEYS:
             width_key = '{0}-column-width'.format(bp)
             offset_key = '{0}-column-offset'.format(bp)
             if bp in breakpoints:
                 width_val = obj.glossary.get(width_key, '').lstrip('col-{0}-'.format(bp))
                 if width_val.isdigit():
                     column_units = int(width_val)
-                new_width = parent_glossary['container_max_widths'][bp] * column_units / 12 - settings.CMSPLUGIN_CASCADE['bootstrap3']['gutter']
+                new_width = parent_glossary['container_max_widths'][bp] * column_units / 12 - settings.CMSPLUGIN_CASCADE['foundation6']['gutter']
                 if new_width != obj.glossary['container_max_widths'].get(bp):
                     obj.glossary['container_max_widths'][bp] = new_width
                     sanitized = True
             else:
                 # remove obsolete entries from own glossary
-                # If no breakpoints are set, the plugin is not inside a BootstrapContainerPlugin,
+                # If no breakpoints are set, the plugin is not inside a FoundationContainerPlugin,
                 # probably in the clipboard placeholder. Don't delete widths and offsets from the
                 # glossary in this case, as we would otherwise lose this information.
                 if breakpoints:
@@ -327,7 +327,7 @@ class BootstrapColumnPlugin(BootstrapPluginBase):
 
     @classmethod
     def get_identifier(cls, obj):
-        identifier = super(BootstrapColumnPlugin, cls).get_identifier(obj)
+        identifier = super(FoundationColumnPlugin, cls).get_identifier(obj)
         glossary = obj.get_complete_glossary()
         widths = []
         for bp in glossary.get('breakpoints', []):
@@ -344,4 +344,4 @@ class BootstrapColumnPlugin(BootstrapPluginBase):
             content = _('unknown width')
         return format_html('{0}{1}', identifier, content)
 
-plugin_pool.register_plugin(BootstrapColumnPlugin)
+plugin_pool.register_plugin(FoundationColumnPlugin)

@@ -15,7 +15,7 @@ from cmsplugin_cascade.forms import ManageChildrenFormMixin
 from cmsplugin_cascade.fields import PartialFormField
 from cmsplugin_cascade.mixins import TransparentMixin
 from cmsplugin_cascade.widgets import NumberInputWidget
-from .plugin_base import BootstrapPluginBase
+from .plugin_base import FoundationPluginBase
 from .panel import panel_heading_sizes, PanelTypeRenderer
 
 
@@ -26,7 +26,7 @@ class AccordionForm(ManageChildrenFormMixin, ModelForm):
         help_text=_("Number of panels for this panel group."))
 
 
-class BootstrapAccordionPlugin(TransparentMixin, BootstrapPluginBase):
+class BootstrapAccordionPlugin(TransparentMixin, FoundationPluginBase):
     name = _("Accordion")
     form = AccordionForm
     default_css_class = 'panel-group'
@@ -66,7 +66,7 @@ class BootstrapAccordionPlugin(TransparentMixin, BootstrapPluginBase):
 plugin_pool.register_plugin(BootstrapAccordionPlugin)
 
 
-class BootstrapAccordionPanelPlugin(TransparentMixin, BootstrapPluginBase):
+class BootstrapAccordionPanelPlugin(TransparentMixin, FoundationPluginBase):
     name = _("Accordion Panel")
     default_css_class = 'panel-body'
     parent_classes = ('BootstrapAccordionPlugin',)

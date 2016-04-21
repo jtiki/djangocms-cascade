@@ -19,7 +19,7 @@ from cmsplugin_cascade.mixins import ImagePropertyMixin
 from cmsplugin_cascade.widgets import NumberInputWidget, MultipleCascadingSizeWidget
 from cmsplugin_cascade.link.cms_plugins import TextLinkPlugin
 from . import settings, utils
-from .plugin_base import BootstrapPluginBase
+from .plugin_base import FoundationPluginBase
 from .image import ImageForm
 from .picture import BootstrapPicturePlugin
 
@@ -32,7 +32,7 @@ class CarouselSlidesForm(ManageChildrenFormMixin, ModelForm):
     )
 
 
-class CarouselPlugin(BootstrapPluginBase):
+class CarouselPlugin(FoundationPluginBase):
     name = _("Carousel")
     form = CarouselSlidesForm
     default_css_class = 'carousel'
@@ -57,11 +57,11 @@ class CarouselPlugin(BootstrapPluginBase):
             help_text=_("Adjust interval for the carousel."),
         ),
         PartialFormField('container_max_heights',
-            MultipleCascadingSizeWidget(list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints']),
+            MultipleCascadingSizeWidget(list(tp[0] for tp in settings.CMSPLUGIN_CASCADE['foundation6']['breakpoints']),
             allowed_units=['px']),
             label=_("Carousel heights"),
             initial=dict((bp[0], '{}px'.format(100 + 50 * i))
-                for i, bp in enumerate(settings.CMSPLUGIN_CASCADE['bootstrap3']['breakpoints'])),
+                for i, bp in enumerate(settings.CMSPLUGIN_CASCADE['foundation6']['breakpoints'])),
             help_text=_("Heights of Carousel in pixels for distinct Bootstrap's breakpoints."),
         ),
         PartialFormField('resize-options',
@@ -120,7 +120,7 @@ class CarouselPlugin(BootstrapPluginBase):
 plugin_pool.register_plugin(CarouselPlugin)
 
 
-class CarouselSlidePlugin(BootstrapPluginBase):
+class CarouselSlidePlugin(FoundationPluginBase):
     name = _("Slide")
     model_mixins = (ImagePropertyMixin,)
     form = ImageForm

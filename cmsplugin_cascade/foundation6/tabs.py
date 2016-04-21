@@ -11,7 +11,7 @@ from cmsplugin_cascade.forms import ManageChildrenFormMixin
 from cmsplugin_cascade.fields import PartialFormField
 from cmsplugin_cascade.mixins import TransparentMixin
 from cmsplugin_cascade.widgets import NumberInputWidget
-from .plugin_base import BootstrapPluginBase
+from .plugin_base import FoundationPluginBase
 
 
 class TabForm(ManageChildrenFormMixin, ModelForm):
@@ -21,7 +21,7 @@ class TabForm(ManageChildrenFormMixin, ModelForm):
         help_text=_("Number of tabs."))
 
 
-class BootstrapTabSetPlugin(TransparentMixin, BootstrapPluginBase):
+class BootstrapTabSetPlugin(TransparentMixin, FoundationPluginBase):
     name = _("Tab Set")
     form = TabForm
     parent_classes = ('BootstrapRowPlugin', 'BootstrapColumnPlugin',)
@@ -51,7 +51,7 @@ class BootstrapTabSetPlugin(TransparentMixin, BootstrapPluginBase):
 plugin_pool.register_plugin(BootstrapTabSetPlugin)
 
 
-class BootstrapTabPanePlugin(TransparentMixin, BootstrapPluginBase):
+class BootstrapTabPanePlugin(TransparentMixin, FoundationPluginBase):
     name = _("Tab Pane")
     parent_classes = ('BootstrapTabSetPlugin',)
     require_parent = True

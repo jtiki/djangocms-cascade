@@ -9,17 +9,16 @@ CASCADE_PLUGINS = ('buttons', 'carousel', 'accordion', 'container', 'image', 'pi
 if 'cms_bootstrap3' in settings.INSTALLED_APPS:
     CASCADE_PLUGINS += ('secondary_menu',)
 
-CMSPLUGIN_CASCADE['bootstrap3'] = {
+CMSPLUGIN_CASCADE['foundation6'] = {
     'breakpoints': (
-        ('xs', (768, 'mobile-phone', _("mobile phones"), 750)),
-        ('sm', (768, 'tablet', _("tablets"), 750)),
-        ('md', (992, 'laptop', _("laptops"), 970)),
-        ('lg', (1200, 'desktop', _("large desktops"), 1170)),
+        ('small', (639, 'mobile-phone', _("mobile phones"), 639)),
+        ('medium', (640, 'tablet', _("tablets"), 640)),
+        ('large', (1024, 'laptop', _("laptops"), 1024)),
     ),
     'gutter': 30,
     'fluid-lg-width': 1980,
 }
-CMSPLUGIN_CASCADE['bootstrap3'].update(orig_config.get('bootstrap3', {}))
+CMSPLUGIN_CASCADE['foundation6'].update(orig_config.get('foundation6', {}))
 
 CMSPLUGIN_CASCADE['plugins_with_extra_render_templates'].setdefault('BootstrapSecondaryMenuPlugin', (
     ('cascade/bootstrap3/secmenu-list-group.html', _("default")),
